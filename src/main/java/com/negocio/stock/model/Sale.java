@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,8 +16,12 @@ public class Sale {
     private LocalDateTime date;
     private BigDecimal total;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false)
     private Seller seller;
-    private List<SaleDetail> ticket;
+
+    @OneToMany(mappedBy = "sale",cascade = CascadeType.ALL)
+    private List<SaleDetail> ticket = new ArrayList<>();
 
     public Sale() {
     }
