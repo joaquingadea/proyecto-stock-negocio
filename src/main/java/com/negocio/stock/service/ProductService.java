@@ -1,5 +1,6 @@
 package com.negocio.stock.service;
 
+import com.negocio.stock.dto.CreateProductDTO;
 import com.negocio.stock.model.Product;
 import com.negocio.stock.repository.IProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,14 @@ public class ProductService implements IProductService{
     private IProductRepository productRepository;
 
     @Override
-    public void create(Product product) {
-        productRepository.save(product);
+    public Product create(CreateProductDTO product) {
+        return productRepository
+                .save(new Product(
+                        product.name(),
+                        product.price(),
+                        product.stock(),
+                        product.description())
+                );
     }
 
     @Override
