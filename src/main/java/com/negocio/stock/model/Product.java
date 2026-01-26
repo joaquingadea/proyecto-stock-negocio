@@ -12,15 +12,17 @@ public class Product {
     private Long id;
     @Column(unique = true)
     private String name;
-    private BigDecimal price;
+    private BigDecimal price; // unitario
+    private int stock; // inicial
     private String description;
 
     public Product() {
     }
 
-    public Product(String name, BigDecimal price, String description) {
+    public Product(String name, BigDecimal price, int stock, String description) {
         this.name = name;
         this.price = price;
+        this.stock = stock;
         this.description = description;
     }
 }
