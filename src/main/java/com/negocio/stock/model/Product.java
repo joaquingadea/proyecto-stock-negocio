@@ -25,4 +25,24 @@ public class Product {
         this.stock = stock;
         this.description = description;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }
