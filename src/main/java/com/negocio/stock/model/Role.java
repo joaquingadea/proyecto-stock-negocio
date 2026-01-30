@@ -26,4 +26,12 @@ public class Role {
         this.name = name;
         this.permissionList = permissionList;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public Set<Permission> getPermissionList() {
+        return permissionList;
+    }
 }
