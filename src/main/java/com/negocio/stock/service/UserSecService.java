@@ -3,5 +3,5 @@ package com.negocio.stock.service;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserSecService {
+public class UserSecService implements IUserSecService{
 }
