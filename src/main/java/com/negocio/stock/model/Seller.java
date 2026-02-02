@@ -8,13 +8,19 @@ public class Seller {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    // UserSec usersec;
+
+    @OneToOne
+    @JoinColumn(name = "user_id",nullable = false,unique = true)
+    private UserSec user;
 
     public Seller() {
     }
 
-    public Seller(String name) {
-        this.name = name;
+    public UserSec getUser() {
+        return user;
+    }
+
+    public void setUser(UserSec user) {
+        this.user = user;
     }
 }
