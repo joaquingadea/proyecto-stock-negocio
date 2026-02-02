@@ -28,17 +28,24 @@ public class UserSec {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roleList = new HashSet<>();
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Seller seller;
+
     public UserSec() {
     }
 
-    public UserSec(String username, String password, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, Set<Role> roleList) {
+    public UserSec(String username, String password, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled) {
         this.username = username;
         this.password = password;
         this.accountNonExpired = accountNonExpired;
         this.accountNonLocked = accountNonLocked;
         this.credentialsNonExpired = credentialsNonExpired;
         this.enabled = enabled;
-        this.roleList = roleList;
+    }
+
+    public void addSeller(Seller seller) {
+        this.seller = seller;
+        seller.setUser(this);
     }
 
     public Long getId() {
