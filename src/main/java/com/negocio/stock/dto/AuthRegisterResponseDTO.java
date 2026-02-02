@@ -1,4 +1,7 @@
 package com.negocio.stock.dto;
 
-public record AuthRegisterResponseDTO() {
+public record AuthRegisterResponseDTO(
+        String username,
+        String message
+) {
 }
