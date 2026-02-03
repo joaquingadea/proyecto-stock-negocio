@@ -22,7 +22,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserSec userSec = userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password."));
+                .orElseThrow(() -> new UsernameNotFoundException("Username does not exists."));
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
