@@ -1,4 +1,6 @@
 package com.negocio.stock.dto;
 
-public record AuthLoginResponseDTO() {
-}
+public record AuthLoginResponseDTO(
+        String message,
+        String jwt
+){}
