@@ -1,4 +1,5 @@
 package com.negocio.stock.dto;
 
-public record MessageResponseDTO() {
-}
+public record MessageResponseDTO(
+    String message
+) {}
