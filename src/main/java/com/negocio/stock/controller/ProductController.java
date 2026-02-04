@@ -1,8 +1,9 @@
 package com.negocio.stock.controller;
 
 import com.negocio.stock.dto.CreateProductDTO;
+import com.negocio.stock.dto.EditProductRequestDTO;
+import com.negocio.stock.dto.MessageResponseDTO;
 import com.negocio.stock.model.Product;
-import com.negocio.stock.repository.IProductRepository;
 import com.negocio.stock.service.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,5 +27,17 @@ public class ProductController {
     public ResponseEntity<Product> read(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.read(id));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<MessageResponseDTO> editById(@PathVariable Long id,@RequestBody EditProductRequestDTO request){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productService.edit(id,request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MessageResponseDTO> deleteById(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productService.deleteById(id));
     }
 }
