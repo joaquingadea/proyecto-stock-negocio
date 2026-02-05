@@ -32,4 +32,24 @@ public class SaleDetail {
         this.unitPrice = unitPrice;
         this.itemTotal = this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));
     }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    public void setSale(Sale sale) {
+        this.sale = sale;
+    }
+
+    public BigDecimal getItemTotal() {
+        return itemTotal;
+    }
 }
