@@ -32,4 +32,17 @@ public class Sale {
         this.seller = seller;
         this.ticket = ticket;
     }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
+
+    public void setTicket(List<SaleDetail> ticket) {
+        this.ticket = ticket;
+    }
+
 }
