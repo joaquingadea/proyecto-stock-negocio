@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface IUserSecRepository extends JpaRepository<UserSec,Long> {
     Optional<UserSec> findUserByUsername(String username);
+    Optional<Long> findIdByUsername(String username);
 }
