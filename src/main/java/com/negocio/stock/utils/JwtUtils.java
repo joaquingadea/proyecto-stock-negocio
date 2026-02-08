@@ -34,6 +34,7 @@ public class JwtUtils {
         Algorithm algorithm = Algorithm.HMAC256(privateKey);
 
         String username = authentication.getPrincipal().toString();
+
         Long userId = userRepository.findIdByUsername(username)
                 .orElseThrow(() -> new PropertyNotFoundException("No se encontro el id del usuario."));
 
