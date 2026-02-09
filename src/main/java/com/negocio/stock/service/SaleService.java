@@ -49,8 +49,6 @@ public class SaleService implements ISaleService{
 
         Sale newSale = new Sale();
 
-        List<SaleDetail> ticketNewSale = new ArrayList<>();
-
         for (SaleDetailDTO dto : request.details()){
 
             Product product = productRepository.findById(dto.productId())
@@ -68,11 +66,9 @@ public class SaleService implements ISaleService{
             saleDetail.setUnitPrice(product.getPrice());
 
             totalSale = totalSale.add(saleDetail.getItemTotal());
-            ticketNewSale.add(saleDetail);
-
+            newSale.getTicket().add(saleDetail);
         }
         newSale.setDate(LocalDateTime.now());
-        newSale.setTicket(ticketNewSale);
         newSale.setTotal(totalSale);
         newSale.setSeller(seller);
 
