@@ -6,6 +6,7 @@ import com.negocio.stock.dto.SaveSaleDTO;
 import com.negocio.stock.model.Product;
 import com.negocio.stock.model.Sale;
 import com.negocio.stock.model.SaleDetail;
+import com.negocio.stock.model.Seller;
 import com.negocio.stock.repository.IProductRepository;
 import com.negocio.stock.repository.ISaleRepository;
 import com.negocio.stock.repository.ISellerRepository;
@@ -13,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -40,9 +42,8 @@ public class SaleService implements ISaleService{
     @Override
     public MessageResponseDTO create(@Valid SaveSaleDTO request) {
 
-        // Obtener sellerId desde las claims del JWT
-        // Seller seller = sellerRepository.findById(dto.productId())
-        //                    .orElseThrow(() -> new EntityNotFoundException("No se encontro el vendedor con id: "+ sellerId));
+        Seller seller = sellerRepository.findById(request.sellerId())
+                            .orElseThrow(() -> new EntityNotFoundException("No se encontro el vendedor con id: "+ request.sellerId()));
 
         BigDecimal totalSale = BigDecimal.ZERO;
 
@@ -73,7 +74,7 @@ public class SaleService implements ISaleService{
         newSale.setDate(LocalDateTime.now());
         newSale.setTicket(ticketNewSale);
         newSale.setTotal(totalSale);
-        // newSale.setSeller(seller);
+        newSale.setSeller(seller);
 
         saleRepository.save(newSale);
 
