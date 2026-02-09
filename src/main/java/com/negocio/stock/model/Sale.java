@@ -41,10 +41,6 @@ public class Sale {
         this.total = total;
     }
 
-    public void setTicket(List<SaleDetail> ticket) {
-        this.ticket = ticket;
-    }
-
     public void setSeller(Seller seller) {
         this.seller = seller;
     }
