@@ -45,4 +45,7 @@ public class Sale {
         this.ticket = ticket;
     }
 
+    public void setSeller(Seller seller) {
+        this.seller = seller;
+    }
 }
