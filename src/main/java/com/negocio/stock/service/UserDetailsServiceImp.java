@@ -4,6 +4,7 @@ import com.negocio.stock.dto.AuthLoginRequestDTO;
 import com.negocio.stock.dto.AuthLoginResponseDTO;
 import com.negocio.stock.model.UserSec;
 import com.negocio.stock.repository.IUserSecRepository;
+import com.negocio.stock.utils.JwtUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -30,6 +31,8 @@ public class UserDetailsServiceImp implements UserDetailsService {
     private IUserSecRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -67,7 +70,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
     public AuthLoginResponseDTO loginUser(@Valid AuthLoginRequestDTO request){
         Authentication authentication = this.authenticate(request.username(), request.password());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        // creacion del jwt
-        return new AuthLoginResponseDTO("Successfully login!","JWT TOTALMENTE REAL YA GENERADO");
+        String newJwt = jwtUtils.createToken(authentication);
+        return new AuthLoginResponseDTO("Successfully login!", newJwt);
     }
 }
