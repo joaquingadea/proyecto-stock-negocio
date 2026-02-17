@@ -1,6 +1,6 @@
 package com.negocio.stock.controller;
 
-import com.negocio.stock.dto.CreateProductDTO;
+import com.negocio.stock.dto.CreateProductRequestDTO;
 import com.negocio.stock.dto.EditProductRequestDTO;
 import com.negocio.stock.dto.MessageResponseDTO;
 import com.negocio.stock.model.Product;
@@ -18,7 +18,7 @@ public class ProductController {
     private IProductService productService;
 
     @PostMapping
-    public ResponseEntity create(@RequestBody CreateProductDTO request){
+    public ResponseEntity create(@RequestBody CreateProductRequestDTO request){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.create(request));
     }
