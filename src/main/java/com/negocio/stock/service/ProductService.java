@@ -1,6 +1,6 @@
 package com.negocio.stock.service;
 
-import com.negocio.stock.dto.CreateProductDTO;
+import com.negocio.stock.dto.CreateProductRequestDTO;
 import com.negocio.stock.dto.EditProductRequestDTO;
 import com.negocio.stock.dto.MessageResponseDTO;
 import com.negocio.stock.model.Product;
@@ -15,7 +15,7 @@ public class ProductService implements IProductService{
     private IProductRepository productRepository;
 
     @Override
-    public Product create(CreateProductDTO product) {
+    public Product create(CreateProductRequestDTO product) {
         return productRepository
                 .save(new Product(
                         product.name(),
