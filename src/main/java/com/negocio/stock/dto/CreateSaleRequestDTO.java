@@ -6,11 +6,11 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-public record SaveSaleDTO(
+public record CreateSaleRequestDTO(
         @NotNull
         Long sellerId,
         @Size(min = 1)
         @NotEmpty
-        List<SaleDetailDTO> details
+        List<SaleDetailRequestDTO> details
 )
 {}
