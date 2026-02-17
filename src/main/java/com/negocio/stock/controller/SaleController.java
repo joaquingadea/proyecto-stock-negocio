@@ -26,9 +26,11 @@ public class SaleController {
                 .body(saleService.create(request));
     }
 
-    @GetMapping // se debe implementar con paginacion para reducir el costo de las consultas a BD
-    public ResponseEntity getAllSales(@RequestParam int pageNumber){
-        Pageable pageRequest = PageRequest.of(pageNumber,15, Sort.by(Sort.Direction.DESC,"date"));
+    @GetMapping
+    public ResponseEntity getAllSales(Pageable pageable, Authentication authentication){
+
+        Pageable pageRequest = PageRequest.of(pageable.getPageNumber(),15, Sort.by(Sort.Direction.DESC,"date"));
+
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(saleService.getAllSales(pageRequest));
