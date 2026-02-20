@@ -2,9 +2,11 @@ package com.negocio.stock.controller;
 
 import com.negocio.stock.dto.MessageResponseDTO;
 import com.negocio.stock.dto.CreateSaleRequestDTO;
+import com.negocio.stock.model.Sale;
 import com.negocio.stock.service.ISaleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,7 +29,7 @@ public class SaleController {
     }
 
     @GetMapping
-    public ResponseEntity getAllSales(Pageable pageable, Authentication authentication){
+    public ResponseEntity<Page<Sale>> getAllSales(Pageable pageable, Authentication authentication){
 
         Pageable pageRequest = PageRequest.of(pageable.getPageNumber(),15, Sort.by(Sort.Direction.DESC,"date"));
 
