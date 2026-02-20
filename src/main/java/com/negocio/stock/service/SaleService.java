@@ -1,8 +1,6 @@
 package com.negocio.stock.service;
 
-import com.negocio.stock.dto.MessageResponseDTO;
-import com.negocio.stock.dto.SaleDetailRequestDTO;
-import com.negocio.stock.dto.CreateSaleRequestDTO;
+import com.negocio.stock.dto.*;
 import com.negocio.stock.model.Product;
 import com.negocio.stock.model.Sale;
 import com.negocio.stock.model.SaleDetail;
