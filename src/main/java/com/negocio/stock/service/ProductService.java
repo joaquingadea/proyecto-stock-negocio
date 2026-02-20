@@ -6,10 +6,16 @@ import com.negocio.stock.dto.MessageResponseDTO;
 import com.negocio.stock.model.Product;
 import com.negocio.stock.repository.IProductRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@Transactional
 public class ProductService implements IProductService{
     @Autowired
     private IProductRepository productRepository;
@@ -49,6 +55,17 @@ public class ProductService implements IProductService{
     public MessageResponseDTO deleteById(Long id) {
         productRepository.deleteById(id);
         return new MessageResponseDTO("Successfully deleted product.");
+    }
+
+    @Override
+    public Page<Product> getAllProducts(Pageable pageableRequest) {
+        return productRepository.findAll(pageableRequest);
+    }
+
+    @Override
+    public MessageResponseDTO deleteSomeById(List<Long> ids) {
+        productRepository.deleteAllById(ids);
+        return new MessageResponseDTO("Deleted products successfully!");
     }
 
 }
