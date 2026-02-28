@@ -1,8 +1,11 @@
 package com.negocio.stock.controller;
 
+import com.negocio.stock.dto.GetSaleResponseDTO;
 import com.negocio.stock.dto.MessageResponseDTO;
 import com.negocio.stock.dto.CreateSaleRequestDTO;
 import com.negocio.stock.model.Sale;
+import com.negocio.stock.model.SaleDetail;
+import com.negocio.stock.service.ISaleDetailService;
 import com.negocio.stock.service.ISaleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +13,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/sale")
@@ -21,6 +27,8 @@ public class SaleController {
 
     @Autowired
     private ISaleService saleService;
+    @Autowired
+    private ISaleDetailService saleDetailService;
 
     @PostMapping
     public ResponseEntity<MessageResponseDTO> makeSale(@Valid @RequestBody CreateSaleRequestDTO request, Authentication authentication){
@@ -29,12 +37,18 @@ public class SaleController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Sale>> getAllSales(Pageable pageable, Authentication authentication){
+    public ResponseEntity<Page<GetSaleResponseDTO>> getAllSales(@PageableDefault(page = 0,size = 15) Pageable pageable, Authentication authentication){
 
         Pageable pageRequest = PageRequest.of(pageable.getPageNumber(),15, Sort.by(Sort.Direction.DESC,"date"));
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(saleService.getAllSales(pageRequest));
+    }
+    @GetMapping("/get-details/{id}")
+    public ResponseEntity<List<SaleDetail>> getSaleDetailsBySaleID(@PathVariable Long id, Authentication authentication){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(saleDetailService.findAllBySaleId(id));
     }
 }
