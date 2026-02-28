@@ -19,7 +19,9 @@ public class Seller {
     public UserSec getUser() {
         return user;
     }
-
+    public Long getId() {
+        return id;
+    }
     public void setUser(UserSec user) {
         this.user = user;
     }
