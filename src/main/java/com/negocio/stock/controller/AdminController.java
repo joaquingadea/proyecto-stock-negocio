@@ -19,7 +19,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
-@CrossOrigin(origins = "${FRONTEND_URL}")
 public class AdminController {
 
     @Autowired
