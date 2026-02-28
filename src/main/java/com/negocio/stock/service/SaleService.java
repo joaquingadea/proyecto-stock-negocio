@@ -69,13 +69,26 @@ public class SaleService implements ISaleService{
         newSale.setSeller(seller);
 
         saleRepository.save(newSale);
-
+        // HAY QUE VERIFICAR QUE LOS PRODUCTOS NO ESTEN REPETIDOS
         return new MessageResponseDTO("Successfully saved sale.");
     }
 
     @Override
-    public Page<Sale> getAllSales(Pageable pageRequest) {
-        return saleRepository.findAll(pageRequest);
+    public Page<GetSaleResponseDTO> getAllSales(Pageable pageRequest) {
+        return saleRepository.findAll(pageRequest).map(sale -> new GetSaleResponseDTO(
+                sale.getId(),
+                sale.getSeller().getUser().getUsername(),
+                sale.getTotal(),
+                sale.getDate(),
+                sale.getTicket()
+                        .stream()
+                        .map(saleDetail -> new GetSaleDetailResponseDTO(
+                            saleDetail.getProduct().getName(),
+                                saleDetail.getQuantity(),
+                                saleDetail.getUnitPrice(),
+                                saleDetail.getItemTotal()
+                        )).toList()
+        ));
     }
 
 }
