@@ -10,7 +10,6 @@ import java.util.List;
 
 @Repository
 public interface IProductRepository extends JpaRepository<Product,Long> {
-    List<ProductNameIdDTO> findAllBy();
     @Query("""
             SELECT p.id AS id, p.name AS name FROM Product p
             WHERE p.stock > 0
