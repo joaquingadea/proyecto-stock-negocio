@@ -3,6 +3,7 @@ package com.negocio.stock.controller;
 import com.negocio.stock.dto.CreateProductRequestDTO;
 import com.negocio.stock.dto.EditProductRequestDTO;
 import com.negocio.stock.dto.MessageResponseDTO;
+import com.negocio.stock.dto.ProductNameIdDTO;
 import com.negocio.stock.model.Product;
 import com.negocio.stock.service.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +36,17 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.read(id));
     }
+    @GetMapping("/names")
+    public ResponseEntity<List<ProductNameIdDTO>> getProductNames(){
+        return ResponseEntity.status(HttpStatus.OK).body(productService.getProductNamesWithStock());
+    }
     @GetMapping
     public ResponseEntity<Page<Product>> getAllProducts(Pageable pageable, Authentication authentication){
         Pageable pageableRequest = PageRequest.of(pageable.getPageNumber(), 15, Sort.by(Sort.Direction.ASC,"name"));
         return ResponseEntity.status(HttpStatus.OK).body(productService.getAllProducts(pageableRequest));
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<MessageResponseDTO> editById(@PathVariable Long id,@RequestBody EditProductRequestDTO request){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.edit(id,request));
