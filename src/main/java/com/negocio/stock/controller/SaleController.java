@@ -3,8 +3,6 @@ package com.negocio.stock.controller;
 import com.negocio.stock.dto.GetSaleResponseDTO;
 import com.negocio.stock.dto.MessageResponseDTO;
 import com.negocio.stock.dto.CreateSaleRequestDTO;
-import com.negocio.stock.model.Sale;
-import com.negocio.stock.model.SaleDetail;
 import com.negocio.stock.service.ISaleDetailService;
 import com.negocio.stock.service.ISaleService;
 import jakarta.validation.Valid;
@@ -18,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/sale")
@@ -44,11 +40,5 @@ public class SaleController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(saleService.getAllSales(pageRequest));
-    }
-    @GetMapping("/get-details/{id}")
-    public ResponseEntity<List<SaleDetail>> getSaleDetailsBySaleID(@PathVariable Long id, Authentication authentication){
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(saleDetailService.findAllBySaleId(id));
     }
 }
