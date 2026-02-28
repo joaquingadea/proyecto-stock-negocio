@@ -48,4 +48,20 @@ public class Sale {
     public List<SaleDetail> getTicket() {
         return ticket;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public Seller getSeller() {
+        return seller;
+    }
 }
