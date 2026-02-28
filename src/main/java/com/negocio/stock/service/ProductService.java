@@ -3,6 +3,7 @@ package com.negocio.stock.service;
 import com.negocio.stock.dto.CreateProductRequestDTO;
 import com.negocio.stock.dto.EditProductRequestDTO;
 import com.negocio.stock.dto.MessageResponseDTO;
+import com.negocio.stock.dto.ProductNameIdDTO;
 import com.negocio.stock.model.Product;
 import com.negocio.stock.repository.IProductRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -67,5 +68,12 @@ public class ProductService implements IProductService{
         productRepository.deleteAllById(ids);
         return new MessageResponseDTO("Deleted products successfully!");
     }
+
+
+    @Override
+    public List<ProductNameIdDTO> getProductNamesWithStock() {
+        return productRepository.findProductsWithStock();
+    }
+
 
 }
