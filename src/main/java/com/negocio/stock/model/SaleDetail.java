@@ -52,4 +52,17 @@ public class SaleDetail {
     public BigDecimal getItemTotal() {
         return itemTotal;
     }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
 }
