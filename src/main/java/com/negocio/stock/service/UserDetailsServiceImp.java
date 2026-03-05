@@ -2,14 +2,18 @@ package com.negocio.stock.service;
 
 import com.negocio.stock.dto.AuthLoginRequestDTO;
 import com.negocio.stock.dto.AuthLoginResponseDTO;
+import com.negocio.stock.dto.LoginResultDTO;
 import com.negocio.stock.model.UserSec;
 import com.negocio.stock.repository.IUserSecRepository;
+import com.negocio.stock.utils.CookieUtils;
 import com.negocio.stock.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -22,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Validated
@@ -33,6 +38,8 @@ public class UserDetailsServiceImp implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtUtils jwtUtils;
+    @Autowired
+    private CookieUtils cookieUtils;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -64,13 +71,16 @@ public class UserDetailsServiceImp implements UserDetailsService {
         if(!passwordEncoder.matches(password,user.getPassword())){
             throw new BadCredentialsException("Invalid username or password.");
         }
-        return new UsernamePasswordAuthenticationToken(username,user.getPassword(),user.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(username,null,user.getAuthorities());
     }
 
-    public AuthLoginResponseDTO loginUser(@Valid AuthLoginRequestDTO request){
+    public LoginResultDTO loginUser(@Valid AuthLoginRequestDTO request){
         Authentication authentication = this.authenticate(request.username(), request.password());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String newJwt = jwtUtils.createToken(authentication);
-        return new AuthLoginResponseDTO("Successfully login!", newJwt);
+        List<String> authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        return new LoginResultDTO(newJwt, authorities);
     }
 }
