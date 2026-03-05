@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.negocio.stock.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
@@ -15,6 +16,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -33,36 +35,34 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException
     {
-        String headerAuthorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String jwt = getJwt(request);
+        try {
+            if(jwt != null) {
+                DecodedJWT decodedJwt = jwtUtils.decodeToken(jwt);
 
-        if(headerAuthorization == null){
-            filterChain.doFilter(request,response);
-            return;
+                String username = jwtUtils.getUsername(decodedJwt);
+                String authorities = jwtUtils.getSpecificClaim(decodedJwt, "authorities").asString();
+
+                if (authorities == null) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
+                Collection<? extends GrantedAuthority> authorityList = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
+
+                SecurityContext securityContext = SecurityContextHolder.getContext();
+                Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authorityList);
+                securityContext.setAuthentication(authentication);
+                SecurityContextHolder.setContext(securityContext);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        if (!headerAuthorization.startsWith("Bearer ")){
-            filterChain.doFilter(request,response);
-            return;
-        }
-
-        String jwt = headerAuthorization.substring(7);
-        DecodedJWT decodedJwt = jwtUtils.decodeToken(jwt);
-
-        String username = jwtUtils.getUsername(decodedJwt);
-        String authorities = jwtUtils.getSpecificClaim(decodedJwt,"authorities").asString();
-
-        if (authorities == null){
-            filterChain.doFilter(request,response);
-            return;
-        }
-
-        Collection<? extends GrantedAuthority> authorityList = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
-
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = new UsernamePasswordAuthenticationToken(username,null,authorityList);
-        securityContext.setAuthentication(authentication);
-        SecurityContextHolder.setContext(securityContext);
-
         filterChain.doFilter(request,response);
+    }
+
+    public String getJwt(HttpServletRequest request){
+        Cookie cookie = WebUtils.getCookie(request,"jwt");
+        return cookie != null ? cookie.getValue() : null;
     }
 }
