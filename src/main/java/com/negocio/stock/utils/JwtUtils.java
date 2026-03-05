@@ -49,7 +49,7 @@ public class JwtUtils {
                 .withClaim("sellerId",sellerId)
                 .withClaim("authorities",authorities)
                 .withIssuedAt(new Date(System.currentTimeMillis()))
-                .withExpiresAt(new Date(System.currentTimeMillis() + (30 * 60000)))
+                .withExpiresAt(new Date(System.currentTimeMillis() + (60 * 60000)))
                 .withJWTId(UUID.randomUUID().toString())
                 .sign(algorithm);
     }
