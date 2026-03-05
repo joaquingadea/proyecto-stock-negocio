@@ -20,7 +20,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -33,12 +38,13 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain loginChain(HttpSecurity http)throws Exception{
         return http
-                .cors(Customizer.withDefaults())
-                .securityMatcher("/auth/login")
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .securityMatcher("/auth/login","/auth/register")
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.anyRequest().authenticated()
+                        auth.requestMatchers("/auth/login","/auth/register").permitAll()
+                                .anyRequest().authenticated()//modificarlo
                 )
                 .httpBasic(Customizer.withDefaults())
                 .build();
@@ -48,7 +54,7 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain apiChain(HttpSecurity http)throws Exception{
         return http
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
@@ -74,5 +80,18 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://127.0.0.1:5500")); // tu frontend
+        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(List.of("*"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
