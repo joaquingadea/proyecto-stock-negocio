@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,39 +25,42 @@ public class ProductController {
 
     @Autowired
     private IProductService productService;
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Product> create(@RequestBody CreateProductRequestDTO request){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.create(request));
     }
-
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/{id}")
     public ResponseEntity<Product> read(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.read(id));
     }
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/names")
     public ResponseEntity<List<ProductNameIdDTO>> getProductNames(){
         return ResponseEntity.status(HttpStatus.OK).body(productService.getProductNamesWithStock());
     }
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping
     public ResponseEntity<Page<Product>> getAllProducts(Pageable pageable, Authentication authentication){
         Pageable pageableRequest = PageRequest.of(pageable.getPageNumber(), 15, Sort.by(Sort.Direction.ASC,"name"));
         return ResponseEntity.status(HttpStatus.OK).body(productService.getAllProducts(pageableRequest));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponseDTO> editById(@PathVariable Long id,@RequestBody EditProductRequestDTO request){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.edit(id,request));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponseDTO> deleteById(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.deleteById(id));
     }
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping
     public ResponseEntity<MessageResponseDTO> deleteSomeById(@RequestBody List<Long> ids){
         return ResponseEntity.status(HttpStatus.ACCEPTED)
