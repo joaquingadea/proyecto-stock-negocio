@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,12 +27,13 @@ public class SaleController {
     @Autowired
     private ISaleDetailService saleDetailService;
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @PostMapping
     public ResponseEntity<MessageResponseDTO> makeSale(@Valid @RequestBody CreateSaleRequestDTO request, Authentication authentication){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(saleService.create(request));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<GetSaleResponseDTO>> getAllSales(@PageableDefault(page = 0,size = 15) Pageable pageable, Authentication authentication){
 
