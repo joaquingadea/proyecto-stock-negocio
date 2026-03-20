@@ -15,6 +15,7 @@ public class Product {
     private BigDecimal price; // unitario
     private int stock; // inicial
     private String description;
+    private boolean activated;
 
     public Product() {
     }
@@ -24,6 +25,7 @@ public class Product {
         this.price = price;
         this.stock = stock;
         this.description = description;
+        this.activated = true;
     }
 
     public Long getId() {
@@ -62,4 +64,11 @@ public class Product {
         return description;
     }
 
+    public void setActivated(boolean activated) {
+        this.activated = activated;
+    }
+
+    public boolean isActivated() {
+        return activated;
+    }
 }
