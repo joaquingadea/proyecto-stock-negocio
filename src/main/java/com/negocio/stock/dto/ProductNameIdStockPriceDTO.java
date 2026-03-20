@@ -1,6 +1,7 @@
 package com.negocio.stock.dto;
 
-public interface ProductNameIdDTO {
+public interface ProductNameIdStockDTO {
     Long getId();
     String getName();
+    int getStock();
 }
