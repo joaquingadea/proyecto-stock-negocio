@@ -53,6 +53,10 @@ public class SaleDetail {
         return itemTotal;
     }
 
+    public void setItemTotal(BigDecimal itemTotal) {
+        this.itemTotal = itemTotal;
+    }
+
     public Product getProduct() {
         return product;
     }
