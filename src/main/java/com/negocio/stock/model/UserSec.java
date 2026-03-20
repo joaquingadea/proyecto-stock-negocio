@@ -22,13 +22,14 @@ public class UserSec {
     private boolean credentialsNonExpired;
     private boolean enabled;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roleList = new HashSet<>();
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Seller seller;
 
     public UserSec() {
@@ -78,5 +79,11 @@ public class UserSec {
 
     public Set<Role> getRoleList() {
         return roleList;
+    }
+
+    public Seller getSeller() { return seller; }
+
+    public void setRoleList(Set<Role> roleList) {
+        this.roleList = roleList;
     }
 }
