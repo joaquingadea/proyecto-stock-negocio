@@ -4,6 +4,7 @@ import com.negocio.stock.dto.GuestUserResponseDTO;
 import com.negocio.stock.dto.SellerResponseDTO;
 import com.negocio.stock.service.ISellerService;
 import com.negocio.stock.service.IUserSecService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class AdminController {
 
     @Autowired
@@ -41,39 +42,46 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userService.getGuestUsers(pageRequest));
     }
-
-    @PatchMapping("/set-user/{id}")
-    public ResponseEntity<HttpStatus> setUserRole(@PathVariable Long id){
-        userService.setRole(id,"USER");
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .build();
-    }
-    @DeleteMapping("/deny-user/{id}")
-    public ResponseEntity<HttpStatus> denyUserRole(@PathVariable Long id){
-        userService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .build();
+    @GetMapping("/test")
+    public Authentication test(Authentication auth){
+        return auth;
     }
 
-    @PatchMapping("/set-admin/{id}")
-    public ResponseEntity<HttpStatus> setAdminRole(@PathVariable Long id){
-        userService.setRole(id,"ADMIN");
+    @PatchMapping("/set-admin/{sellerId}")
+    public ResponseEntity<String> setAdminRole(@PathVariable Long sellerId){
+        userService.setAdmin(sellerId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .build();
+                .body("Correctamente seteado el admin");
     }
 
-    @PatchMapping("/remove-user/{id}")
+    @PatchMapping("/revoke-permissions/{id}")
     public ResponseEntity removeUserRole(@PathVariable Long id){
-        userService.removeRoles(id, List.of("USER","ADMIN"));
+        userService.removeRolesAndSetGuest(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
 
-    @PatchMapping("/remove-admin/{id}")
-    public ResponseEntity<HttpStatus> removeAdminRole(@PathVariable Long id){
-        userService.removeRole(id,"ADMIN");
+    @PatchMapping("/revoke-admin/{sellerId}")
+    public ResponseEntity<HttpStatus> removeAdminRole(@PathVariable Long sellerId){
+       try {
+           userService.revokeAdmin(sellerId);
+           return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+       } catch (IllegalStateException e) {
+           return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+       } catch (Exception e){
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+       }
+    }
+    @PatchMapping("/accept-seller/{sellerId}")
+    public ResponseEntity<HttpStatus> setUserRole(@PathVariable Long sellerId){
+        sellerService.acceptSellerRequest(sellerId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
+    }
+    @PatchMapping("/deny-seller/{sellerId}")
+    public ResponseEntity<String> denySellerRequest(@PathVariable Long sellerId){
+        sellerService.denySellerRequest(sellerId);
+        return ResponseEntity.status(HttpStatus.OK).body("Has denegado la solicitud para ser vendedor.");
     }
 
 }
