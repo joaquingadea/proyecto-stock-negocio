@@ -3,9 +3,10 @@ package com.negocio.stock.controller;
 import com.negocio.stock.dto.CreateProductRequestDTO;
 import com.negocio.stock.dto.EditProductRequestDTO;
 import com.negocio.stock.dto.MessageResponseDTO;
-import com.negocio.stock.dto.ProductNameIdDTO;
+import com.negocio.stock.dto.ProductNameIdStockPriceDTO;
 import com.negocio.stock.model.Product;
 import com.negocio.stock.service.IProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +28,7 @@ public class ProductController {
     private IProductService productService;
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody CreateProductRequestDTO request){
+    public ResponseEntity<Product> create(@Valid @RequestBody CreateProductRequestDTO request){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.create(request));
     }
@@ -39,7 +40,7 @@ public class ProductController {
     }
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/names")
-    public ResponseEntity<List<ProductNameIdDTO>> getProductNames(){
+    public ResponseEntity<List<ProductNameIdStockPriceDTO>> getProductNames(){
         return ResponseEntity.status(HttpStatus.OK).body(productService.getProductNamesWithStock());
     }
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
@@ -48,9 +49,16 @@ public class ProductController {
         Pageable pageableRequest = PageRequest.of(pageable.getPageNumber(), 15, Sort.by(Sort.Direction.ASC,"name"));
         return ResponseEntity.status(HttpStatus.OK).body(productService.getAllProducts(pageableRequest));
     }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @GetMapping("/deactivated")
+    public ResponseEntity<Page<Product>> getDesactivatedProducts(Pageable pageable,Authentication authentication){
+        Pageable pageableRequest = PageRequest.of(pageable.getPageNumber(),15,Sort.by(Sort.Direction.ASC, "name"));
+        return ResponseEntity.status(HttpStatus.OK).body(productService.getDesactivatedProducts(pageableRequest));
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<MessageResponseDTO> editById(@PathVariable Long id,@RequestBody EditProductRequestDTO request){
+    public ResponseEntity<MessageResponseDTO> editById(@PathVariable Long id,@Valid @RequestBody EditProductRequestDTO request){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.edit(id,request));
     }
@@ -62,8 +70,20 @@ public class ProductController {
     }
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping
-    public ResponseEntity<MessageResponseDTO> deleteSomeById(@RequestBody List<Long> ids){
+    public ResponseEntity<MessageResponseDTO> deleteSomeById(@RequestBody List<Long> ids) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(productService.deleteSomeById(ids));
+    }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PatchMapping("/desactivate/{productId}")
+    public ResponseEntity<HttpStatus> desactivateProduct(@PathVariable Long productId){
+        productService.desactivate(productId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PatchMapping("/activate/{productId}")
+    public ResponseEntity<HttpStatus> activateProduct(@PathVariable Long productId){
+        productService.activate(productId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 }
