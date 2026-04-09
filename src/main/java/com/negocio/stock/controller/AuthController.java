@@ -52,6 +52,7 @@ public class AuthController {
 
         result.put("name",authentication.getName());
         result.put("authorities",autorities);
+        result.put("sellerId",userService.findSellerIdByUsername(authentication.getName()));
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
