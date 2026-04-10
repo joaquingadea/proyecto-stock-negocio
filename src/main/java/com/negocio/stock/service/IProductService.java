@@ -3,7 +3,7 @@ package com.negocio.stock.service;
 import com.negocio.stock.dto.CreateProductRequestDTO;
 import com.negocio.stock.dto.EditProductRequestDTO;
 import com.negocio.stock.dto.MessageResponseDTO;
-import com.negocio.stock.dto.ProductNameIdDTO;
+import com.negocio.stock.dto.ProductNameIdStockPriceDTO;
 import com.negocio.stock.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,5 +17,9 @@ public interface IProductService {
     MessageResponseDTO deleteById(Long id);
     Page<Product> getAllProducts(Pageable pageableRequest);
     MessageResponseDTO deleteSomeById(List<Long> ids);
-    List<ProductNameIdDTO> getProductNamesWithStock();
+    List<ProductNameIdStockPriceDTO> getProductNamesWithStock();
+    void desactivate(Long productId);
+    void activate(Long productId);
+
+    Page<Product> getDesactivatedProducts(Pageable pageableRequest);
 }

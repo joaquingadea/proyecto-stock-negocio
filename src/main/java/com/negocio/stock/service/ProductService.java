@@ -3,26 +3,29 @@ package com.negocio.stock.service;
 import com.negocio.stock.dto.CreateProductRequestDTO;
 import com.negocio.stock.dto.EditProductRequestDTO;
 import com.negocio.stock.dto.MessageResponseDTO;
-import com.negocio.stock.dto.ProductNameIdDTO;
+import com.negocio.stock.dto.ProductNameIdStockPriceDTO;
 import com.negocio.stock.model.Product;
 import com.negocio.stock.repository.IProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Service
+@Validated
 @Transactional
 public class ProductService implements IProductService{
     @Autowired
     private IProductRepository productRepository;
 
     @Override
-    public Product create(CreateProductRequestDTO product) {
+    public Product create(@Valid CreateProductRequestDTO product) {
         return productRepository
                 .save(new Product(
                         product.name(),
@@ -39,7 +42,7 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public MessageResponseDTO edit(Long id, EditProductRequestDTO request) {
+    public MessageResponseDTO edit(Long id,@Valid EditProductRequestDTO request) {
         Product productRepo = productRepository.findById(id)
                 .orElseThrow(EntityNotFoundException::new);
         productRepo.setName(request.name());
@@ -60,7 +63,7 @@ public class ProductService implements IProductService{
 
     @Override
     public Page<Product> getAllProducts(Pageable pageableRequest) {
-        return productRepository.findAll(pageableRequest);
+        return productRepository.findAllActivated(pageableRequest);
     }
 
     @Override
@@ -71,9 +74,26 @@ public class ProductService implements IProductService{
 
 
     @Override
-    public List<ProductNameIdDTO> getProductNamesWithStock() {
+    public List<ProductNameIdStockPriceDTO> getProductNamesWithStock() {
         return productRepository.findProductsWithStock();
     }
 
+    @Override
+    public void desactivate(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow();
+        product.setActivated(false);
+        productRepository.save(product);
+    }
 
+    @Override
+    public void activate(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow();
+        product.setActivated(true);
+        productRepository.save(product);
+    }
+
+    @Override
+    public Page<Product> getDesactivatedProducts(Pageable pageableRequest) {
+        return productRepository.findAllDesactivated(pageableRequest);
+    }
 }
