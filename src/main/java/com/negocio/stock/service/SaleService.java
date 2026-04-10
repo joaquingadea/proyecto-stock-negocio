@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Validated
@@ -36,14 +39,16 @@ public class SaleService implements ISaleService{
     *  - Una vez validado todo lo necesario se terminan de settear los atributos necesarios para la nueva venta y se da el alta de la misma en la BD
     */
     @Override
-    public MessageResponseDTO create(@Valid CreateSaleRequestDTO request) {
+    public MessageResponseDTO create(@Valid CreateSaleRequestDTO request,String username) {
 
-        Seller seller = sellerRepository.findById(request.sellerId())
-                            .orElseThrow(() -> new EntityNotFoundException("No se encontro el vendedor con id: "+ request.sellerId()));
+        Seller seller = sellerRepository.findByUserUsername(username)
+                            .orElseThrow(() -> new EntityNotFoundException("No se encontro el vendedor: "+ username));
 
         BigDecimal totalSale = BigDecimal.ZERO;
 
         Sale newSale = new Sale();
+
+        validateNoDuplicateProducts(request);
 
         for (SaleDetailRequestDTO dto : request.details()){
 
@@ -53,6 +58,12 @@ public class SaleService implements ISaleService{
             if((product.getStock() - dto.quantity()) < 0){
                 throw new IllegalArgumentException("Se intenta vender más productos de los posibles");
             }
+            if (product.getPrice() == null) {
+                throw new IllegalStateException("Producto sin precio: " + product.getName());
+            }
+
+            // ACTUALIZAR STOCK DE CADA PRODUCTO
+            product.setStock(product.getStock() - dto.quantity());
 
             SaleDetail saleDetail = new SaleDetail();
 
@@ -60,6 +71,11 @@ public class SaleService implements ISaleService{
             saleDetail.setProduct(product);
             saleDetail.setQuantity(dto.quantity());
             saleDetail.setUnitPrice(product.getPrice());
+
+            BigDecimal itemTotal = product.getPrice()
+                    .multiply(BigDecimal.valueOf(dto.quantity()));
+
+            saleDetail.setItemTotal(itemTotal);
 
             totalSale = totalSale.add(saleDetail.getItemTotal());
             newSale.getTicket().add(saleDetail);
@@ -69,7 +85,7 @@ public class SaleService implements ISaleService{
         newSale.setSeller(seller);
 
         saleRepository.save(newSale);
-        // HAY QUE VERIFICAR QUE LOS PRODUCTOS NO ESTEN REPETIDOS
+
         return new MessageResponseDTO("Successfully saved sale.");
     }
 
@@ -91,4 +107,33 @@ public class SaleService implements ISaleService{
         ));
     }
 
+    @Override
+    public Page<GetSaleResponseDTO> getMySales(String username, Pageable pageRequest) {
+        return saleRepository.findAllBySellerUserUsername(username,pageRequest).map(sale -> new GetSaleResponseDTO(
+                sale.getId(),
+                sale.getSeller().getUser().getUsername(),
+                sale.getTotal(),
+                sale.getDate(),
+                sale.getTicket()
+                        .stream()
+                        .map(saleDetail -> new GetSaleDetailResponseDTO(
+                                saleDetail.getProduct().getName(),
+                                saleDetail.getQuantity(),
+                                saleDetail.getUnitPrice(),
+                                saleDetail.getItemTotal()
+                            )
+                        ).toList()
+        ));
+    }
+
+    public void validateNoDuplicateProducts(CreateSaleRequestDTO request){
+        Set<Long> ids = request.details()
+                .stream()
+                .map(SaleDetailRequestDTO::productId)
+                .collect(Collectors.toSet());
+
+        if (ids.size() != request.details().size()) {
+            throw new IllegalArgumentException("Hay productos repetidos en la venta");
+        }
+    }
 }

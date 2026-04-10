@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ISaleService {
-    MessageResponseDTO create(CreateSaleRequestDTO request);
+    MessageResponseDTO create(CreateSaleRequestDTO request,String username);
     Page<GetSaleResponseDTO> getAllSales(Pageable pageRequest);
+    Page<GetSaleResponseDTO> getMySales(String username, Pageable pageRequest);
 }
