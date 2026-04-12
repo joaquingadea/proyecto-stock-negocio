@@ -7,6 +7,7 @@ import com.negocio.stock.model.Role;
 import com.negocio.stock.model.Seller;
 import com.negocio.stock.model.UserSec;
 import com.negocio.stock.repository.IRoleRepository;
+import com.negocio.stock.repository.ISellerRepository;
 import com.negocio.stock.repository.IUserSecRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -19,8 +20,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-
-import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -34,6 +34,8 @@ public class UserSecService implements IUserSecService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private IRoleRepository roleRepository;
+    @Autowired
+    private ISellerRepository sellerRepository;
 
     @Override
     public AuthRegisterResponseDTO register(@Valid AuthRegisterRequestDTO request) {
@@ -60,7 +62,7 @@ public class UserSecService implements IUserSecService {
 
     @Override
     public @Nullable Page<GuestUserResponseDTO> getGuestUsers(PageRequest pageRequest) {
-        return userRepository.findUsersByRole("GUEST",pageRequest)
+        return userRepository.findGuestUsers(pageRequest)
                 .map(user -> new GuestUserResponseDTO(
                         user.getId(),
                         user.getUsername()
@@ -68,34 +70,86 @@ public class UserSecService implements IUserSecService {
     }
 
     @Override
-    public void setRole(Long id,String name) {
-        UserSec user = userRepository.findById(id).orElseThrow();
+    public void setRole(Long userId,String name) {
+        UserSec user = userRepository.findById(userId).orElseThrow();
         Role role = roleRepository.findByName(name).orElseThrow();
-        user.getRoleList().add(role);
+        Set<Role> newRoleList = user.getRoleList(); newRoleList.add(role);
+        user.setRoleList(newRoleList);
         userRepository.save(user);
     }
 
     @Override
-    public void removeRole(Long id, String name) {
-        UserSec user = userRepository.findById(id).orElseThrow();
-        Role role = roleRepository.findByName(name).orElseThrow();
+    public void removeRole(Long userId, String name) {
+
+        UserSec user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+
+        Role role = roleRepository.findByName(name)
+                .orElseThrow(() -> new EntityNotFoundException("Rol no encontrado"));
+
+        if (!user.getRoleList().contains(role)) {
+            throw new IllegalStateException("El usuario no tiene ese rol");
+        }
         user.getRoleList().remove(role);
+
         userRepository.save(user);
     }
 
     @Override
-    public void removeRoles(Long id, List<String> roles) {
-        UserSec user = userRepository.findById(id).orElseThrow();
-        roles.forEach(role ->
-                user.getRoleList()
-                        .remove(roleRepository.findByName(role).orElseThrow())
-        );
-        userRepository.save(user);
+    public void removeRolesAndSetGuest(Long sellerId) {
+        try {
+            Long userId = sellerRepository.findUserIdBySellerId(sellerId).orElseThrow();
+            UserSec user = userRepository.findById(userId).orElseThrow();
+            user.getRoleList().clear();
+            user.getRoleList().add(roleRepository.findByName("GUEST").orElseThrow());
+            user.getSeller().setSellerApproved(false);
+            user.getSeller().setSellerRequested(false);
+            userRepository.save(user);
+        }
+        catch (IllegalArgumentException e){
+            throw e;
+        }
     }
 
     @Override
     public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
+    // modificar a softdelete
+    @Override
+    public void deleteGuestById(Long id) {
+        UserSec user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+
+        user.getRoleList().clear();
+
+        if (user.getSeller() != null){
+            sellerRepository.delete(user.getSeller());
+        }
+
+        userRepository.delete(user);
+    }
+
+    @Override
+    public void setAdmin(Long sellerId) {
+        Long userId = sellerRepository.findUserIdBySellerId(sellerId)
+                .orElseThrow(EntityNotFoundException::new);
+        setRole(userId,"ADMIN");
+        removeRole(userId,"USER");
+    }
+
+    @Override
+    public void revokeAdmin(Long sellerId) {
+        Long userId = sellerRepository.findUserIdBySellerId(sellerId)
+                .orElseThrow(EntityNotFoundException::new);
+        setRole(userId,"USER");
+        removeRole(userId,"ADMIN");
+    }
+
+    @Override
+    public Long findSellerIdByUsername(String name) {
+        return userRepository.findSellerIdByUsername(name).orElseThrow();
+    }
+
 
 }

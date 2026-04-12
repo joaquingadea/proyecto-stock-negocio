@@ -14,11 +14,19 @@ public interface IUserSecService {
 
     @Nullable Page<GuestUserResponseDTO> getGuestUsers(PageRequest pageRequest);
 
-    void setRole(Long id,String name);
+    void setRole(Long userId,String name);
 
-    void removeRole(Long id, String name);
+    void removeRole(Long userId, String name);
 
-    void removeRoles(Long id, List<String> roles);
+    void removeRolesAndSetGuest(Long sellerId);
 
     void deleteById(Long id);
+
+    void deleteGuestById(Long id);
+
+    void setAdmin(Long sellerId);
+
+    void revokeAdmin(Long sellerId);
+
+    Long findSellerIdByUsername(String name);
 }
