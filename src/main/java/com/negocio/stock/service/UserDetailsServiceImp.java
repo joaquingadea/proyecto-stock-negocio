@@ -1,13 +1,12 @@
 package com.negocio.stock.service;
 
 import com.negocio.stock.dto.AuthLoginRequestDTO;
-import com.negocio.stock.dto.AuthLoginResponseDTO;
 import com.negocio.stock.dto.LoginResultDTO;
 import com.negocio.stock.model.UserSec;
 import com.negocio.stock.repository.IUserSecRepository;
 import com.negocio.stock.utils.CookieUtils;
 import com.negocio.stock.utils.JwtUtils;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,13 +22,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Validated
+@Transactional
 public class UserDetailsServiceImp implements UserDetailsService {
 
     @Autowired
